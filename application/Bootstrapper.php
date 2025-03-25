@@ -89,5 +89,11 @@ class Bootstrapper
             return $mySelf->respondWithException($response, 'Internal Service Error', StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
         };
         $errorMiddleware->setErrorHandler(\Exception::class, $unknownErrorHandler);
+
+        $dbAccessErrorHandler = function () use ($app, $mySelf) {
+            $response = $app->getResponseFactory()->createResponse();
+            return $mySelf->respondWithException($response, 'DBAL Connection has failed', StatusCodeInterface::STATUS_SERVICE_UNAVAILABLE);
+        };
+        $errorMiddleware->setErrorHandler(\Doctrine\DBAL\Exception\ConnectionException::class, $dbAccessErrorHandler);
     }
 }

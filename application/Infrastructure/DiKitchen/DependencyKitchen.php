@@ -25,7 +25,7 @@ class DependencyKitchen implements DependencyApiInterface
     public final function init(?ContainerInterface $container = null): ?ContainerInterface
     {
         try {
-            $this->container = $container ?? new Container();
+            $this->container = $container ?? new DIContainerWrapper();
             $this->registerDependencies();
             return $this->container;
         } catch (DependencyException|NotFoundException|ORMException|NotFoundExceptionInterface|ContainerExceptionInterface $exception) {
@@ -45,4 +45,32 @@ class DependencyKitchen implements DependencyApiInterface
             $registerer->register($this->container);
         }
     }
+}
+
+class DIContainerWrapper implements ContainerInterface
+{
+    private Container $container;
+
+    public function __construct()
+    {
+        $this->container = new Container();
+    }
+
+    // Implement required methods from DICInterface
+    public function get($id)
+    {
+        return $this->container->get($id);
+    }
+
+    public function has($id)
+    {
+        return $this->container->has($id);
+    }
+
+    public function set($id, $value)
+    {
+        $this->container->set($id, $value);
+    }
+
+    // You can add any other necessary methods from ContainerInterface or DI\Container if needed
 }
